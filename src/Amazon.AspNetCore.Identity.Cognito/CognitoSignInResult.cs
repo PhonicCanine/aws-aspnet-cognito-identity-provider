@@ -30,6 +30,12 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// </summary>
         /// <returns>A CognitoSignInResult that represents a required password reset.</returns>
         public static readonly CognitoSignInResult PasswordResetRequired = new CognitoSignInResult { RequiresPasswordReset = true };
+        
+        /// <summary>
+        ///  Returns a CognitoSignInResult that represents a required mfa setup.
+        /// </summary>
+        /// <returns>A CognitoSignInResult that represents a required mfa setup.</returns>
+        public static readonly CognitoSignInResult TwoFactorSetupRequired = new CognitoSignInResult { RequiresTwoFactorSetup = true };
 
         /// <summary>
         ///  Returns a flag indication whether changing the password is required.
@@ -42,6 +48,14 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// </summary>
         /// <returns>A flag indication whether reseting the password is required.</returns>
         public bool RequiresPasswordReset { get; protected set; }
+        
+        /// <summary>
+        /// Returns a flag indication that represents a sign-in attempt that needs the user
+        /// to setup two-factor authentication
+        /// </summary>
+        /// <returns>A flag indication that represents a sign-in attempt that needs the user
+        /// to setup two-factor authentication</returns>
+        public bool RequiresTwoFactorSetup { get; protected set; }
 
         /// <summary>
         /// Converts the value of the current <see cref="CognitoSignInResult"/> object to its equivalent string representation.
@@ -49,7 +63,8 @@ namespace Amazon.AspNetCore.Identity.Cognito
         /// <returns>A string representation of value of the current <see cref="CognitoSignInResult"/> object.</returns>
         public override string ToString()
         {
-            return IsLockedOut ? "Lockedout" :
+            return RequiresTwoFactorSetup ? "SetupMFA" :
+                   IsLockedOut ? "Lockedout" :
                    IsNotAllowed ? "NotAllowed" :
                    RequiresTwoFactor ? "RequiresTwoFactor" :
                    RequiresPasswordChange ? "RequiresPasswordChange" :

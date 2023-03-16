@@ -264,9 +264,10 @@ namespace Amazon.AspNetCore.Identity.Cognito
                 signinResult = SignInResult.Failed;
             }
             else if (checkPasswordResult.ChallengeName == ChallengeNameType.SMS_MFA ||
-                checkPasswordResult.ChallengeName == ChallengeNameType.SOFTWARE_TOKEN_MFA)
+                checkPasswordResult.ChallengeName == ChallengeNameType.SOFTWARE_TOKEN_MFA ||
+                checkPasswordResult.ChallengeName == ChallengeNameType.MFA_SETUP)
             {
-                signinResult = SignInResult.TwoFactorRequired;
+                signinResult = checkPasswordResult.ChallengeName == ChallengeNameType.MFA_SETUP ? CognitoSignInResult.TwoFactorSetupRequired : SignInResult.TwoFactorRequired;
 
                 var userPrincipal = new ClaimsPrincipal();
                 userPrincipal.AddIdentity(new ClaimsIdentity(new List<Claim>() {
@@ -402,6 +403,12 @@ namespace Amazon.AspNetCore.Identity.Cognito
 
         #region 2FA
 
+        public async Task<string> GetCognitoAuthenticationWorkflowId()
+        {
+            var result = await RetrieveTwoFactorInfoAsync();
+            return result?.CognitoAuthenticationWorkflowId;
+        }
+        
         /// <summary>
         /// Retrieves the information related to the authentication workflow.
         /// </summary>
